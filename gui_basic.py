@@ -52,14 +52,20 @@ class View(QtWidgets.QMainWindow):
 
     def create_menu_bar(self):
         self.mainMenu = self.menuBar()
+
         self.fileMenu = self.mainMenu.addMenu('&File')
 
 
-        self.extractAction_menubar = QtWidgets.QAction("&Exit", self)
-        self.extractAction_menubar.setShortcut("Ctrl+Q")
-        self.extractAction_menubar.setStatusTip('Leave the app from menu bar')
+        self.openFileAction_menubar = QtWidgets.QAction("&Open...", self)
+        self.openFileAction_menubar.setShortcut("Ctrl+O")
+        self.openFileAction_menubar.setStatusTip('Open a txt file')
+        self.fileMenu.addAction(self.openFileAction_menubar)
 
-        self.fileMenu.addAction(self.extractAction_menubar)
+
+        self.exitAction_menubar = QtWidgets.QAction("&Exit", self)
+        self.exitAction_menubar.setShortcut("Ctrl+Q")
+        self.exitAction_menubar.setStatusTip('Leave the app from menu bar')
+        self.fileMenu.addAction(self.exitAction_menubar)
 
     def create_tool_bar(self):
         self.toolBar = self.addToolBar("Another Exit")
@@ -69,8 +75,9 @@ class View(QtWidgets.QMainWindow):
 
     def create_check_box(self):
         self.check_box = QtWidgets.QCheckBox("Check this to enlarge window",self)
-        self.check_box.move(100,25)
-        self.check_box.toggle()
+        self.check_box.setGeometry(100,25,250,40)
+        #self.check_box.move(100,25)
+        #self.check_box.toggle()
         self.check_box.stateChanged.connect(self.enlarge_window)
 
     def create_progres_bar(self):
@@ -82,6 +89,7 @@ class View(QtWidgets.QMainWindow):
         self.comboBox.addItems(QtWidgets.QStyleFactory.keys())
         self.comboBox.move(0,115)
         self.comboBox.activated[str].connect(self.choise_style)
+
 
     def choise_style(self, text):
         '''
@@ -100,13 +108,20 @@ class View(QtWidgets.QMainWindow):
         areYouSure = QtWidgets.QMessageBox.question(self, 'Exit', "Get Out?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         return areYouSure
 
+
+    def open_file_dialog(self):
+        file_name, value = QtWidgets.QFileDialog.getOpenFileName(self, 'Choise a file')
+        return file_name
+
+
 class Controller():
     def __init__(self):
         self.app = QtWidgets.QApplication([])
         self.gui = View()
         self.gui.quit_btn.clicked.connect(self.clbk_quit)
-        self.gui.extractAction_menubar.triggered.connect(self.clbk_quit)
+        self.gui.exitAction_menubar.triggered.connect(self.clbk_quit)
         self.gui.extractAction_toolbar.triggered.connect(self.clbk_quit)
+        self.gui.openFileAction_menubar.triggered.connect(self.open_and_load_file)
 
     def run(self):
         self.app.exec()
@@ -116,14 +131,20 @@ class Controller():
         time_till_exit = 0
         if get_user_ans == QtWidgets.QMessageBox.Yes:
             while time_till_exit <= 100:
-                time_till_exit +=0.00001
+                time_till_exit +=0.0001
                 self.gui.progress.setValue(time_till_exit)
 
             sys.exit()
         else :
             pass
 
+    def open_and_load_file(self):
+        file_name = self.gui.open_file_dialog()
+        #print(file_name)
 
+        with open(file_name, 'rt') as f:
+            first_line = f.readlines()
+            print(first_line)
 C = Controller()
 
 
