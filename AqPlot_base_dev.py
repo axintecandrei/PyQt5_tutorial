@@ -1,18 +1,20 @@
 import sys
+import serial.tools.list_ports
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from pyqtgraph import PlotWidget
+from pyqtgraph import PlotWidget, AxisItem
 import pandas as pd
 '''
     Using this comand a .ui file shall be converted to .py file
     path_of_pyuic tool : "C:\_Users\axint\AppData\Local\Programs\Python\Python36\Scripts>pyuic5.exe" 
                           C:\_Users\axint\AppData\Roaming\Python\Python36\Scripts
+                          
     
     command = pyuic5.exe -x file_to_Be_converted.ui -o result_of_convertion.py
 '''
 
-class Model():
+class Model:
     def __init__(self):
         self.number_of_signals = int()
         self.signal_names = []
@@ -30,34 +32,43 @@ class Model():
 
 
 
-		
-		
 '''
     This class shall represent the View:
         - all gui related objects
         - 
 '''
+class TimeAxisItem(AxisItem):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+    def tickStrings(self, values, scale, spacing):
+        # PySide's QTime() initialiser fails miserably and dismisses args/kwargs
+        #return [QTime().addMSecs(value).toString('mm:ss') for value in values]
+        return [int2dt(value).strftime("%H:%M:%S.%f") for value in values]
 
-class View(object):
+class View:
 
     def __init__(self, MainWindow):
-
         self.main_window = MainWindow
         self.main_frame_init()
         self.create_graph_view()
         self.create_open_meas_butt()
         self.create_clr_scr_butt()
         self.create_signal_list()
+        self.create_menu_bar()
+        self.create_serial_panel()
+
+
         '''
             The show() method shall be called ALWAYS after 
             the backyard is done and ready. 
         '''
+        self.retranslateUi()
         self.main_window.show()
 
     def main_frame_init(self):
         self.main_window.setObjectName("MainWindow")
-        self.main_window.resize(1130, 539)
+        self.main_window.resize(1150, 600)
 
         self.centralwidget = QtWidgets.QWidget(self.main_window)
         self.centralwidget.setObjectName("centralwidget")
@@ -68,7 +79,6 @@ class View(object):
         '''buttons frame'''
         self.butt_frame = QtWidgets.QFrame(self.centralwidget)
         self.butt_frame.setMinimumSize(QtCore.QSize(231, 521))
-        self.butt_frame.setMaximumSize(QtCore.QSize(231, 521))
         self.butt_frame.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.butt_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.butt_frame.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -77,50 +87,39 @@ class View(object):
         self.central_gridLayout.addWidget(self.butt_frame)
         self.main_window.setCentralWidget(self.centralwidget)
 
-
-        self._translate = QtCore.QCoreApplication.translate
-        self.main_window.setWindowTitle(self._translate("MainWindow", "MainWindow"))
-
-
         QtCore.QMetaObject.connectSlotsByName(self.main_window)
 
-    def create_graph_view(self):
-        self.graphicsView = PlotWidget(self.centralwidget)
-        self.graphicsView.setMinimumSize(QtCore.QSize(641, 521))
-        self.graphicsView.setObjectName("graphicsView")
-        self.central_gridLayout.addWidget(self.graphicsView)
+
 
     def create_open_meas_butt(self):
         self.open_meas_butt = QtWidgets.QPushButton(self.butt_frame)
-        self.open_meas_butt.setGeometry(QtCore.QRect(11, 11, 161, 31))
-        self.open_meas_butt.setMinimumSize(QtCore.QSize(161, 31))
-        self.open_meas_butt.setMaximumSize(QtCore.QSize(161, 31))
+        self.open_meas_butt.setGeometry(QtCore.QRect(10, 10, 201, 31))
+        self.open_meas_butt.setMinimumSize(QtCore.QSize(201, 31))
+        self.open_meas_butt.setMaximumSize(QtCore.QSize(201, 31))
         self.open_meas_butt.setObjectName("open_meas_butt")
         self.open_meas_butt.raise_()
-        self.open_meas_butt.setText(self._translate("MainWindow", "Open Measurement"))
 
     def create_clr_scr_butt(self):
         self.clr_scr = QtWidgets.QPushButton(self.butt_frame)
-        self.clr_scr.setGeometry(QtCore.QRect(10, 50, 161, 31))
-        self.clr_scr.setMinimumSize(QtCore.QSize(161, 31))
-        self.clr_scr.setMaximumSize(QtCore.QSize(161, 31))
+        self.clr_scr.setGeometry(QtCore.QRect(10, 50, 201, 31))
+        self.clr_scr.setMinimumSize(QtCore.QSize(201, 31))
+        self.clr_scr.setMaximumSize(QtCore.QSize(201, 31))
         self.clr_scr.setObjectName("clr_scr")
         self.clr_scr.raise_()
-        self.clr_scr.setText(self._translate("MainWindow", "Clear Screen"))
 
     def create_menu_bar(self):
-        self.mainMenu = self.menuBar()
+        self.mainMenu = self.main_window.menuBar()
 
         self.fileMenu = self.mainMenu.addMenu('&File')
 
 
-        self.openFileAction_menubar = QtWidgets.QAction("&Open...", self)
+        self.openFileAction_menubar = QtWidgets.QAction("&Open...", self.main_window)
         self.openFileAction_menubar.setShortcut("Ctrl+O")
         self.openFileAction_menubar.setStatusTip('Open a txt file')
         self.fileMenu.addAction(self.openFileAction_menubar)
 
-
-        self.exitAction_menubar = QtWidgets.QAction("&Exit", self)
+        self.fileMenu = self.mainMenu.addMenu('&File')
+        self.exitAction_menubar = QtWidgets.QAction("&Exit", self.main_window)
         self.exitAction_menubar.setShortcut("Ctrl+Q")
         self.exitAction_menubar.setStatusTip('Leave the app from menu bar')
         self.fileMenu.addAction(self.exitAction_menubar)
@@ -142,20 +141,84 @@ class View(object):
         self.progress = QtWidgets.QProgressBar(self)
         self.progress.setGeometry(250,55,250,20)
 
-    def create_combo_box(self):
-        self.comboBox = QtWidgets.QComboBox(self)
-        self.comboBox.addItems(QtWidgets.QStyleFactory.keys())
-        self.comboBox.move(0,115)
-        self.comboBox.activated[str].connect(self.choise_style)
+    def create_serial_panel(self):
+        self.sel_com_combo_box = QtWidgets.QComboBox(self.butt_frame)
+        self.sel_com_combo_box.setGeometry(QtCore.QRect(10, 450, 111, 21))
+        self.sel_com_combo_box.setMinimumSize(QtCore.QSize(111, 21))
+        self.sel_com_combo_box.setMaximumSize(QtCore.QSize(111, 21))
+        self.sel_com_combo_box.setObjectName("sel_com_combo_box")
+        self.sel_com_label = QtWidgets.QLabel(self.butt_frame)
+        self.sel_com_label.setGeometry(QtCore.QRect(10, 420, 111, 29))
+        self.sel_com_label.setMinimumSize(QtCore.QSize(91, 29))
+        self.sel_com_label.setMaximumSize(QtCore.QSize(111, 29))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        font.setWeight(50)
+        self.sel_com_label.setFont(font)
+        self.sel_com_label.setTextFormat(QtCore.Qt.AutoText)
+        self.sel_com_label.setScaledContents(True)
+        self.sel_com_label.setWordWrap(False)
+        self.sel_com_label.setObjectName("sel_com_label")
+
+        self.run_meas_butt = QtWidgets.QPushButton(self.butt_frame)
+        self.run_meas_butt.setGeometry(QtCore.QRect(10, 530, 201, 41))
+        self.run_meas_butt.setMinimumSize(QtCore.QSize(201, 41))
+        self.run_meas_butt.setMaximumSize(QtCore.QSize(211, 41))
+        self.run_meas_butt.setObjectName("run_meas_butt")
+        self.connect_butt = QtWidgets.QPushButton(self.butt_frame)
+        self.connect_butt.setGeometry(QtCore.QRect(140, 450, 71, 71))
+        self.connect_butt.setMinimumSize(QtCore.QSize(71, 71))
+        self.connect_butt.setMaximumSize(QtCore.QSize(71, 71))
+        self.connect_butt.setObjectName("connect_butt")
+
+        self.baudR_com_label = QtWidgets.QLabel(self.butt_frame)
+        self.baudR_com_label.setGeometry(QtCore.QRect(10, 470, 111, 29))
+        self.baudR_com_label.setMinimumSize(QtCore.QSize(91, 29))
+        self.baudR_com_label.setMaximumSize(QtCore.QSize(111, 29))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        font.setWeight(50)
+        self.baudR_com_label.setFont(font)
+        self.baudR_com_label.setTextFormat(QtCore.Qt.AutoText)
+        self.baudR_com_label.setScaledContents(True)
+        self.baudR_com_label.setWordWrap(False)
+        self.baudR_com_label.setObjectName("baudR_com_label")
+
+        self.sel_baudR_combo_box = QtWidgets.QComboBox(self.butt_frame)
+        self.sel_baudR_combo_box.setGeometry(QtCore.QRect(10, 500, 111, 21))
+        self.sel_baudR_combo_box.setMinimumSize(QtCore.QSize(111, 21))
+        self.sel_baudR_combo_box.setMaximumSize(QtCore.QSize(111, 21))
+        self.sel_baudR_combo_box.setObjectName("sel_baudR_combo_box")
+
+        #self.sel_baudR_combo_box.activated[str].connect(self.choise_style)
+
+        self.sel_com_combo_box.raise_()
+        self.sel_com_label.raise_()
+        self.run_meas_butt.raise_()
+        self.connect_butt.raise_()
+        self.baudR_com_label.raise_()
+        self.sel_baudR_combo_box.raise_()
+
+    def open_file_dialog(self):
+        file_name, value = QtWidgets.QFileDialog.getOpenFileName(self.main_window, 'Choise a file')
+        return file_name
+
+    def create_graph_view(self):
+        self.graphicsView = PlotWidget(self.centralwidget)#axisItems={'bottom': TimeAxisItem(orientation='bottom')})
+        self.graphicsView.setMinimumSize(QtCore.QSize(893, 582))
+        self.graphicsView.setObjectName("graphicsView")
+        self.central_gridLayout.addWidget(self.graphicsView)
 
     def create_signal_list(self):
         self.signals_box_label = QtWidgets.QLabel(self.butt_frame)
         self.signals_box_label.setGeometry(QtCore.QRect(11, 85, 60, 29))
         self.signals_box_label.setMinimumSize(QtCore.QSize(60, 29))
         self.signals_box_label.setMaximumSize(QtCore.QSize(60, 29))
+
         font = QtGui.QFont()
         font.setPointSize(12)
-        font.setBold(False)
         font.setWeight(50)
         self.signals_box_label.setFont(font)
         self.signals_box_label.setTextFormat(QtCore.Qt.AutoText)
@@ -166,26 +229,33 @@ class View(object):
         self.signal_list_box = QtWidgets.QListWidget(self.butt_frame)
         self.signal_list_box.setGeometry(QtCore.QRect(10, 120, 201, 281))
         self.signal_list_box.setObjectName("listWidget")
-
-        self.signals_box_label.setText(self._translate("MainWindow", "Signals"))
+        self.signal_list_box.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.signals_box_label.raise_()
 
     def fill_up_signal_list(self, signal_name):
         for signal in signal_name[1:]:
             self.signal_list_box.addItem(signal)
 
-
+    def fill_up_COM_list(self, com_list):
+        self.sel_com_combo_box.addItems(com_list)
 
     def pop_up_on_exit(self):
         areYouSure = QtWidgets.QMessageBox.question(self, 'Exit', "Get Out?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         return areYouSure
 
-    def open_file_dialog(self):
-        file_name, value = QtWidgets.QFileDialog.getOpenFileName(self.main_window, 'Choise a file')
-        return file_name
+    def retranslateUi(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.main_window.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.open_meas_butt.setText(_translate("MainWindow", "Open Measurement"))
+        self.clr_scr.setText(_translate("MainWindow", "Clear Screen"))
+        self.signals_box_label.setText(_translate("MainWindow", "Signals"))
+        self.sel_com_label.setText(_translate("MainWindow", "Select COM"))
+        self.run_meas_butt.setText(_translate("MainWindow", "Run \n"" Measurement"))
+        self.connect_butt.setText(_translate("MainWindow", "Connect"))
+        self.baudR_com_label.setText(_translate("MainWindow", "Bauderate"))
 
 
-class Controller():
+class Controller:
     def __init__(self):
         self.app = QtWidgets.QApplication([])
 
@@ -195,12 +265,11 @@ class Controller():
         self.view.open_meas_butt.clicked.connect(self.open_and_load_file)
         self.view.clr_scr.clicked.connect(self.clear_graph)
         self.view.signal_list_box.itemSelectionChanged.connect(self.add_signal_to_plot)
-        '''
-        self.gui.quit_btn.clicked.connect(self.clbk_quit)
-        self.gui.exitAction_menubar.triggered.connect(self.clbk_quit)
-        self.gui.extractAction_toolbar.triggered.connect(self.clbk_quit)
-        self.gui.openFileAction_menubar.triggered.connect(self.open_and_load_file)
-        '''
+        self.view.openFileAction_menubar.triggered.connect(self.open_and_load_file)
+        self.view.exitAction_menubar.triggered.connect(self._quit)
+
+        self.get_host_com_ports()
+
     def run(self):
         self.app.exec()
 
@@ -208,31 +277,36 @@ class Controller():
         file_name = self.view.open_file_dialog()
         self.model.import_signals(file_name)
         self.view.fill_up_signal_list(self.model.signal_names)
-        self.aq_plot(self.model.meas_data[self.model.signal_names[2]])
 
 
     def aq_plot(self, data):
         self.view.graphicsView.plot(data, pen='g')
+        #self.view.graphicsView.setLabel('left', 'Voltage', units='V')
 
     def add_signal_to_plot(self):
-        selected_signal = self.view.signal_list_box.currentItem().text()
-        self.aq_plot(self.model.meas_data[selected_signal])
+        selected_signal = self.view.signal_list_box.selectedItems()
+        for signal in selected_signal:
+            self.aq_plot(self.model.meas_data[signal.text()])
 
     def clear_graph(self):
         self.view.graphicsView.clear()
-    def clbk_quit(self):
-        get_user_ans = self.view.pop_up_on_exit()
-        time_till_exit = 0
-        if get_user_ans == QtWidgets.QMessageBox.Yes:
-            while time_till_exit <= 100:
-                time_till_exit +=0.0001
-                self.view.progress.setValue(time_till_exit)
 
+    def get_host_com_ports(self):
+        ports = serial.tools.list_ports.comports()
+        port_list = []
+        for port, desc, hwid in sorted(ports):
+            port_list.append(port)
+        self.view.fill_up_COM_list(port_list)
+
+    def _quit(self):
+        get_user_ans = self.view.pop_up_on_exit()
+        if get_user_ans == QtWidgets.QMessageBox.Yes:
             sys.exit()
         else :
             pass
-C = Controller()
 
 
 if __name__ == '__main__':
+    C = Controller()
     C.run()
+

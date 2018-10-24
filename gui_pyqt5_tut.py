@@ -4,18 +4,21 @@ from PyQt5 import QtCore, QtGui, QtWidgets, uic
 '''
     Using this comand a .ui file shall be converted to .py file
     path_of_pyuic tool : "C:\_Users\axint\AppData\Local\Programs\Python\Python36\Scripts>pyuic5.exe" 
+                          C:\_Users\axint\AppData\Roaming\Python\Python36\Scripts
     
     command = pyuic5.exe -x file_to_Be_converted.ui -o result_of_convertion.py
 '''
+
+class Model():
+    def __init__(self):
+        pass
+		
+		
 '''
     This class shall represent the View:
         - all gui related objects
         - 
 '''
-class Model():
-    def __init__(self):
-        pass
-
 
 
 class View(QtWidgets.QMainWindow):
