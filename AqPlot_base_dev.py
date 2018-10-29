@@ -58,7 +58,6 @@ class View:
         self.create_menu_bar()
         self.create_serial_panel()
 
-
         '''
             The show() method shall be called ALWAYS after 
             the backyard is done and ready. 
@@ -88,8 +87,6 @@ class View:
         self.main_window.setCentralWidget(self.centralwidget)
 
         QtCore.QMetaObject.connectSlotsByName(self.main_window)
-
-
 
     def create_open_meas_butt(self):
         self.open_meas_butt = QtWidgets.QPushButton(self.butt_frame)
@@ -147,44 +144,6 @@ class View:
         self.sel_com_combo_box.setMinimumSize(QtCore.QSize(111, 21))
         self.sel_com_combo_box.setMaximumSize(QtCore.QSize(111, 21))
         self.sel_com_combo_box.setObjectName("sel_com_combo_box")
-        self.sel_com_label = QtWidgets.QLabel(self.butt_frame)
-        self.sel_com_label.setGeometry(QtCore.QRect(10, 420, 111, 29))
-        self.sel_com_label.setMinimumSize(QtCore.QSize(91, 29))
-        self.sel_com_label.setMaximumSize(QtCore.QSize(111, 29))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(False)
-        font.setWeight(50)
-        self.sel_com_label.setFont(font)
-        self.sel_com_label.setTextFormat(QtCore.Qt.AutoText)
-        self.sel_com_label.setScaledContents(True)
-        self.sel_com_label.setWordWrap(False)
-        self.sel_com_label.setObjectName("sel_com_label")
-
-        self.run_meas_butt = QtWidgets.QPushButton(self.butt_frame)
-        self.run_meas_butt.setGeometry(QtCore.QRect(10, 530, 201, 41))
-        self.run_meas_butt.setMinimumSize(QtCore.QSize(201, 41))
-        self.run_meas_butt.setMaximumSize(QtCore.QSize(211, 41))
-        self.run_meas_butt.setObjectName("run_meas_butt")
-        self.connect_butt = QtWidgets.QPushButton(self.butt_frame)
-        self.connect_butt.setGeometry(QtCore.QRect(140, 450, 71, 71))
-        self.connect_butt.setMinimumSize(QtCore.QSize(71, 71))
-        self.connect_butt.setMaximumSize(QtCore.QSize(71, 71))
-        self.connect_butt.setObjectName("connect_butt")
-
-        self.baudR_com_label = QtWidgets.QLabel(self.butt_frame)
-        self.baudR_com_label.setGeometry(QtCore.QRect(10, 470, 111, 29))
-        self.baudR_com_label.setMinimumSize(QtCore.QSize(91, 29))
-        self.baudR_com_label.setMaximumSize(QtCore.QSize(111, 29))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(False)
-        font.setWeight(50)
-        self.baudR_com_label.setFont(font)
-        self.baudR_com_label.setTextFormat(QtCore.Qt.AutoText)
-        self.baudR_com_label.setScaledContents(True)
-        self.baudR_com_label.setWordWrap(False)
-        self.baudR_com_label.setObjectName("baudR_com_label")
 
         self.sel_baudR_combo_box = QtWidgets.QComboBox(self.butt_frame)
         self.sel_baudR_combo_box.setGeometry(QtCore.QRect(10, 500, 111, 21))
@@ -192,7 +151,44 @@ class View:
         self.sel_baudR_combo_box.setMaximumSize(QtCore.QSize(111, 21))
         self.sel_baudR_combo_box.setObjectName("sel_baudR_combo_box")
 
-        #self.sel_baudR_combo_box.activated[str].connect(self.choise_style)
+        self.run_meas_butt = QtWidgets.QPushButton(self.butt_frame)
+        self.run_meas_butt.setGeometry(QtCore.QRect(10, 530, 201, 41))
+        self.run_meas_butt.setMinimumSize(QtCore.QSize(201, 41))
+        self.run_meas_butt.setMaximumSize(QtCore.QSize(211, 41))
+        self.run_meas_butt.setObjectName("run_meas_butt")
+
+        self.connect_butt = QtWidgets.QPushButton(self.butt_frame)
+        self.connect_butt.setGeometry(QtCore.QRect(140, 450, 71, 71))
+        self.connect_butt.setMinimumSize(QtCore.QSize(71, 71))
+        self.connect_butt.setMaximumSize(QtCore.QSize(71, 71))
+        self.connect_butt.setObjectName("connect_butt")
+
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        font.setWeight(50)
+
+        self.baudR_com_label = QtWidgets.QLabel(self.butt_frame)
+        self.baudR_com_label.setGeometry(QtCore.QRect(10, 470, 111, 29))
+        self.baudR_com_label.setMinimumSize(QtCore.QSize(91, 29))
+        self.baudR_com_label.setMaximumSize(QtCore.QSize(111, 29))
+
+        self.baudR_com_label.setFont(font)
+        self.baudR_com_label.setTextFormat(QtCore.Qt.AutoText)
+        self.baudR_com_label.setScaledContents(True)
+        self.baudR_com_label.setWordWrap(False)
+        self.baudR_com_label.setObjectName("baudR_com_label")
+
+        self.sel_com_label = QtWidgets.QLabel(self.butt_frame)
+        self.sel_com_label.setGeometry(QtCore.QRect(10, 420, 111, 29))
+        self.sel_com_label.setMinimumSize(QtCore.QSize(91, 29))
+        self.sel_com_label.setMaximumSize(QtCore.QSize(111, 29))
+
+        self.sel_com_label.setFont(font)
+        self.sel_com_label.setTextFormat(QtCore.Qt.AutoText)
+        self.sel_com_label.setScaledContents(True)
+        self.sel_com_label.setWordWrap(False)
+        self.sel_com_label.setObjectName("sel_com_label")
 
         self.sel_com_combo_box.raise_()
         self.sel_com_label.raise_()
@@ -200,6 +196,8 @@ class View:
         self.connect_butt.raise_()
         self.baudR_com_label.raise_()
         self.sel_baudR_combo_box.raise_()
+
+
 
     def open_file_dialog(self):
         file_name, value = QtWidgets.QFileDialog.getOpenFileName(self.main_window, 'Choise a file')
@@ -236,8 +234,12 @@ class View:
         for signal in signal_name[1:]:
             self.signal_list_box.addItem(signal)
 
-    def fill_up_COM_list(self, com_list):
-        self.sel_com_combo_box.addItems(com_list)
+    def fill_up_COM_list(self, items):
+        self.sel_com_combo_box.addItems(items)
+
+    def fill_up_baud_rate_list(self):
+        baud_rates = ["9600", "14400", "19200", "38400", "57600", "115200", "128000", "256000"]
+        self.sel_baudR_combo_box.addItems(baud_rates)
 
     def pop_up_on_exit(self):
         areYouSure = QtWidgets.QMessageBox.question(self, 'Exit', "Get Out?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
@@ -267,8 +269,11 @@ class Controller:
         self.view.signal_list_box.itemSelectionChanged.connect(self.add_signal_to_plot)
         self.view.openFileAction_menubar.triggered.connect(self.open_and_load_file)
         self.view.exitAction_menubar.triggered.connect(self._quit)
-
+        self.view.sel_com_combo_box.activated[str].connect(self.select_com_port)
+        self.view.sel_baudR_combo_box.activated[str].connect(self.select_baud_rate)
+        self.view.fill_up_baud_rate_list()
         self.get_host_com_ports()
+
 
     def run(self):
         self.app.exec()
@@ -292,11 +297,28 @@ class Controller:
         self.view.graphicsView.clear()
 
     def get_host_com_ports(self):
-        ports = serial.tools.list_ports.comports()
-        port_list = []
-        for port, desc, hwid in sorted(ports):
-            port_list.append(port)
-        self.view.fill_up_COM_list(port_list)
+            ports = serial.tools.list_ports.comports()
+            if not ports:
+                self.view.fill_up_COM_list(["No ports available"])
+            else:
+                port_list = []
+                for port, desc, hwid in sorted(ports):
+                    port_list.append(port)
+                self.view.fill_up_COM_list(port_list)
+
+    def select_com_port(self, port):
+        '''
+        This method shall be used to send the selected port
+        to the serial driver
+        '''
+        pass
+
+    def select_baud_rate(self, baudrate):
+        '''
+        This method shall be used to send the selected port
+        to the serial driver
+        '''
+        pass
 
     def _quit(self):
         get_user_ans = self.view.pop_up_on_exit()
